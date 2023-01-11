@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
+    <title>Option Edit</title>
     <style>
         html {
             height: 100%;
@@ -174,40 +174,53 @@
             }
           }
     </style>
+    <meta name="csrf-token" content="<%= csrfToken %>">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        var token = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+        function editOption() {
+            let electionID = <%= electionId %>;
+            let questionID = <%= questionId %>;
+            let optionID = <%= optionId %>;
+            let option = document.getElementById("option").value;
+            fetch(`/electionpage/${electionID}/que/${questionID}/opt/${optionID}/edit`, {
+                method: "put",
+                headers: {"Content-Type":"application/json"},
+                body: JSON.stringify({
+                    "_csrf":token,
+                    "option":option,
+                })
+            }).then((res)=>{
+                if (res.ok) {
+                    window.location.replace(`/electionpage/${electionID}/que/${questionID}`);
+                }
+            }).catch((err)=> console.error(err))
+        }
+    </script>
 </head>
 <body>
     <%- include('heading.ejs') %>
-    <div class="flex gap-1 mx-10 mt-6 bg-rgba(0,0,0,.5)">
-        <h1 style="color:white">></span>
-        <a href="/electionpage" class="text-white">Go Back</a>
-    </div>
-    <!--  -->
+    <span style="color:white">></span>
+        <a href="/electionpage/<%= questionId %>/que/<%= questionId %>" class="text-white">Go Back</a>
     <div class="login-box">
-        <h2>Create Election</h2>
-        <form action="/electionpage" method="post">
+        <h2>Edit Option</h2>
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <div class="user-box">
-                <input type="text" name="electionName" id="electionName" required="">
-                <label>Election Name</label>
+                <input  value="<%= option %>" id="option" name="option" type="text" required>
+                <label>Enter Option</label>
               </div>
-              <div class="user-box">
-                <input type="text" name="publicurl" id="publicurl" required="">
-                <label>URL</label>
-              </div>
-          <button type="submit" style="color: white;" >
+          <button  style="color: white;" onclick="editOption()" >
             <span></span>
             <span></span>
             <span></span>
             <span></span>
-            Create
+            Update
           </button>
-        </form>
         <% if(messages && messages.error && messages.error.length > 0)  { %>
-          <% for(var i=0; i<messages.error.length; i++) { %>
-            <p class="bg-red-200 my-3 list-none rounded px-4 py-2"><%= messages.error[i] %></p>
+            <% for(var i=0; i<messages.error.length; i++) { %>
+              <p class="bg-red-200 my-3 list-none rounded px-4 py-2"><%= messages.error[i] %></p>
+            <% } %>
           <% } %>
-        <% } %>
       </div>
 </body>
 </html>
